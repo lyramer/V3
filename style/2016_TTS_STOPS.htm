@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="EN" lang="EN">
+
+<head>
+
+		<meta http-equiv="cache-control" content="no-store" />
+		<meta http-equiv="pragma" content="no-cache" />
+		<meta http-equiv="expires" content="-1" />
+		<meta name="generator" content="CallWeb, see http://callweb.ca" />
+		<meta name="CallWeb" content="20120607.1" />
+		<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" type="image/ico" href="http://www.malatest.net/favicon.ico">
+
+<link rel="stylesheet" href="cwm20160621_TTS/STOPS_TEST/style/easy-autocomplete_stops.css"> <!-- FIXME -->
+<link rel="stylesheet" type="text/css" href="cwm20160621_TTS/STOPS_TEST/style/2016_TTS_style.css" /> <!-- FIXME -->
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script> 
+<script src="cwm20160621_TTS/STOPS_TEST/jsnew/app_2016_map9A.js"></script> <!-- FIXME -->
+
+</head>
+
+	<body>
+		<div id="MAIN_CONTAINER">
+
+			&*HEADER
+
+			<div id="MAIN_CONTENT">
+
+				&*BODY
+
+				<br />
+
+
+				&*BUTTONSH:BNU
+
+
+				<br />
+
+			</div>
+
+			&nbsp; <br /> &nbsp; <br />
+
+		</div>
+
+			&*FOOTER
+   <form>
+
+
+<!-- Hides stop boxes until required. -->
+<!-- Annoyingly slow. Need to trim up JS or find a way of doing this more quickly -->	   
+
+<script>
+	$('#AE9_STOP_ON11').prop('hidden', true);
+	$('#AE9_STOP_ON21').prop('hidden', true);
+	$('#AE9_STOP_ON31').prop('hidden', true);
+	$('#AE9_STOP_ON41').prop('hidden', true);
+	$('#AE9_STOP_ON51').prop('hidden', true);
+	$('#AE9_STOP_ON61').prop('hidden', true);
+	$('#AE9_STOP_OFF11').prop('hidden', true);
+	$('#AE9_STOP_OFF21').prop('hidden', true);
+	$('#AE9_STOP_OFF31').prop('hidden', true);
+	$('#AE9_STOP_OFF41').prop('hidden', true);
+	$('#AE9_STOP_OFF51').prop('hidden', true);
+	$('#AE9_STOP_OFF61').prop('hidden', true);
+</script>
+
+    <script src="cwm20160621_TTS/STOPS_TEST/jsnew/jquery.easy-autocomplete_STOPS.js"></script>
+
+
+
+<!-- Rich's brilliance at work. -->
+<!-- This keeps the callweb form from submitting when the return key is pressed on the autocomplete -->
+<script> $('form').keypress(function(event) {if (event.which == 13) {event.preventDefault();}});</script>
+<script src="cwm20160621_TTS/STOPS_TEST/jsnew/stops_v1.js"></script>
+
+
+
+<!------------------------------ ROUTE 1 -->
+    <script>
+		var options = {
+			url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_route_NEW.json",
+			getValue: "name",
+			placeholder: function() {
+				if (language == "FR") {return "1er circuit"}
+				else {return "First Route"}
+			},
+			template: {
+				type: "description",
+				fields: {description: "address"}
+			},
+
+			list: {
+				match: {enabled: true},
+				maxNumberOfElements: 30, //FIXME
+
+				// pretty much from here down to the end of this script is new
+				onChooseEvent: function() {
+					// drops the route code into the cw form
+					route_code = $("#AE9_BUS11").getSelectedItemData().route_code;
+					$("#AE9_RTE_CODE11").val(route_code).trigger("change");
+					
+					// drops the route type from the json file into callweb form
+					route_type = Number($("#AE9_BUS11").getSelectedItemData().route_type);
+					$("#AE9_FLAG11").val(route_type).trigger("change");
+					
+					// check to make sure route_type is valid. FIXME
+					if (route_type < 1 || route_type > 3) {
+						alert("ERROR!!! No Route Type Supplied!");
+					};
+
+
+					// only runs EAC scripts for stops if routes of type 2 or 3 are chosen.
+					switch (route_type) {
+
+						case 1: // if they took 'other' (no stops asked)
+							$('#AE9_STOP_ON11').prop('hidden', true); // HIDES STOP INPUT BOXES
+							$('#AE9_STOP_OFF11').prop('hidden', true);
+							break;						
+
+
+						case 2: // if they took GO (type 2)
+							var options_EMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_GO.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Embarked",
+								list: {match: {enabled: true}}
+							};
+
+							var options_DISEMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_GO.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Disembarked",
+								list: {match: {enabled: true}}
+							};
+
+							$('#AE9_STOP_ON11').prop('hidden', false); // makes the stop input boxes visible
+							$('#AE9_STOP_OFF11').prop('hidden', false);
+
+							$('#AE9_STOP_ON11').easyAutocomplete(options_EMBARK); 
+							$('#AE9_STOP_OFF11').easyAutocomplete(options_DISEMBARK);	
+							break;
+
+
+						case 3: // if they took ttc (type 3)
+							var options_EMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_RT.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Embarked",
+								list: {match: {enabled: true}}
+							};
+
+							var options_DISEMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_RT.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Disembarked",
+								list: {match: {enabled: true}}
+							};
+							console.log(options_EMBARK);
+							console.log(options_DISEMBARK);
+							$('#AE9_STOP_ON11').prop('hidden', false); // makes the stop input boxes visible
+							$('#AE9_STOP_OFF11').prop('hidden', false);
+
+							$('#AE9_STOP_ON11').easyAutocomplete(options_EMBARK); 
+							$('#AE9_STOP_OFF11').easyAutocomplete(options_DISEMBARK);	
+							break;
+					}; // end of switch 
+					
+				
+				} // end of onChooseEvent function
+			}
+				
+		};
+		console.log(options.datatype);
+		$('#AE9_BUS11').easyAutocomplete(options);
+	</script>
+
+
+
+<!------------------------------ ROUTE 2 -->
+
+    <script>
+		var options = {
+			url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_route_NEW.json",
+			getValue: "name",
+			placeholder: function() {
+				if (language == "FR") {return "2i&egrave;me circuit"}
+				else {return "Second Route"}
+			},			
+			template: {
+				type: "description",
+					fields: {description: "address"}
+			},
+
+			list: {
+				match: {enabled: true},
+				//maxNumberOfElements: 6,
+				// pretty much from here down to the end of this script is new
+				onChooseEvent: function() {
+					// drops the route code into the cw form
+					route_code = $("#AE9_BUS21").getSelectedItemData().route_code;
+					$("#AE9_RTE_CODE21").val(route_code).trigger("change");
+					
+					// drops the route type from the json file into callweb form					
+					route_type = Number($("#AE9_BUS21").getSelectedItemData().route_type);
+					$("#AE9_FLAG21").val(route_type).trigger("change");
+
+					// only runs EAC scripts for stops if routes of type 2 or 3 are chosen.
+					switch (route_type) {
+
+						case 1: // if they took 'other' (no stops asked)
+							$('#AE9_STOP_ON21').prop('hidden', true); // HIDES STOP INPUT BOXES
+							$('#AE9_STOP_OFF21').prop('hidden', true);
+							break;						
+
+
+						case 2: // if they took GO (type 2)
+							var options_EMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_GO.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Embarked",
+								list: {match: {enabled: true}}
+							};
+
+							var options_DISEMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_GO.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Disembarked",
+								list: {match: {enabled: true}}
+							};
+
+							$('#AE9_STOP_ON21').prop('hidden', false); // makes the stop input boxes visible
+							$('#AE9_STOP_OFF21').prop('hidden', false);
+
+							$('#AE9_STOP_ON21').easyAutocomplete(options_EMBARK);	
+							$('#AE9_STOP_OFF21').easyAutocomplete(options_DISEMBARK);
+							break;
+
+
+						case 3: // if they took ttc (type 3)
+							var options_EMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_RT.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Embarked",
+								list: {match: {enabled: true}}
+							};
+
+							var options_DISEMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_RT.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Disembarked",
+								list: {match: {enabled: true}}
+							};
+
+							$('#AE9_STOP_ON21').prop('hidden', false); // makes the stop input boxes visible
+							$('#AE9_STOP_OFF21').prop('hidden', false);
+
+							$('#AE9_STOP_ON21').easyAutocomplete(options_EMBARK);	
+							$('#AE9_STOP_OFF21').easyAutocomplete(options_DISEMBARK);	
+							break;
+
+
+					}; // end of switch 				
+				} // end of onChooseEvent function
+			}
+			
+		};
+
+		$('#AE9_BUS21').easyAutocomplete(options);
+	</script>
+
+
+
+
+
+<!------------------------------ ROUTE 3 -->
+
+    <script>
+		var options = {
+			url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_route_NEW.json",
+			getValue: "name",
+			placeholder: function() {
+				if (language == "FR") {return "3iéme circuit"}
+				else {return "Third Route"}
+			},				
+			template: {
+				type: "description",
+					fields: {description: "address"}
+			},
+				
+			list: {
+
+				match: {enabled: true},
+				maxNumberOfElements: 6,
+				// pretty much from here down to the end of this script is new
+				onChooseEvent: function() {
+					// drops the route code into the cw form
+					route_code = $("#AE9_BUS31").getSelectedItemData().route_code;
+					$("#AE9_RTE_CODE31").val(route_code).trigger("change");
+					
+					// drops the route type from the json file into callweb form
+					route_type = Number($("#AE9_BUS31").getSelectedItemData().route_type);
+					$("#AE9_FLAG31").val(route_type).trigger("change");
+					console.log(route_type); // FIXME
+
+					// only runs EAC scripts for stops if routes of type 2 or 3 are chosen.
+					switch (route_type) {
+
+						case 1: // if they took 'other' (no stops asked)
+							$('#AE9_STOP_ON31').prop('hidden', true); // HIDES STOP INPUT BOXES
+							$('#AE9_STOP_OFF31').prop('hidden', true);
+							break;						
+
+
+						case 2: // if they took GO (type 2)
+							var options_EMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_GO.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Embarked",
+								list: {match: {enabled: true}}
+							};
+
+							var options_DISEMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_GO.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Disembarked",
+								list: {match: {enabled: true}}
+							};
+
+							$('#AE9_STOP_ON31').prop('hidden', false); // makes the stop input boxes visible
+							$('#AE9_STOP_OFF31').prop('hidden', false);
+
+							$('#AE9_STOP_ON31').easyAutocomplete(options_EMBARK);	
+							$('#AE9_STOP_OFF31').easyAutocomplete(options_DISEMBARK);		
+							break;
+
+
+						case 3: // if they took ttc (type 3)
+							var options_EMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_RT.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Embarked",
+								list: {match: {enabled: true}}
+							};
+
+							var options_DISEMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_RT.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Disembarked",
+								list: {match: {enabled: true}}
+							};
+
+							$('#AE9_STOP_ON31').prop('hidden', false); // makes the stop input boxes visible
+							$('#AE9_STOP_OFF31').prop('hidden', false);
+
+							$('#AE9_STOP_ON31').easyAutocomplete(options_EMBARK);	
+							$('#AE9_STOP_OFF31').easyAutocomplete(options_DISEMBARK);							
+							break;
+					}; // end of switch 					
+				} // end of onChooseEvent function
+				
+
+			}
+		};
+   $('#AE9_BUS31').easyAutocomplete(options);
+
+	</script>
+
+
+
+
+<!------------------------------ ROUTE 4 -->
+
+    <script>
+		var options = {
+			url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_route_NEW.json",
+			getValue: "name",
+			placeholder: function() {
+				if (language == "FR") {return "4iéme circuit"}
+				else {return "Fourth Route"}
+			},	
+
+			template: {
+				type: "description",
+				fields: {description: "address"}
+			},
+
+			list: {
+				match: {enabled: true},
+				maxNumberOfElements: 6,
+
+				// pretty much from here down to the end of this script is new
+				onChooseEvent: function() {
+					// drops the route code into the cw form
+					route_code = $("#AE9_BUS41").getSelectedItemData().route_code;
+					$("#AE9_RTE_CODE41").val(route_code).trigger("change");
+					
+					// drops the route type from the json file into callweb form
+					route_type = Number($("#AE9_BUS41").getSelectedItemData().route_type);
+					$("#AE9_FLAG41").val(route_type).trigger("change");
+
+					// only runs EAC scripts for stops if routes of type 2 or 3 are chosen.
+					switch (route_type) {
+
+						case 1: // if they took 'other' (no stops asked)
+							$('#AE9_STOP_ON41').prop('hidden', true); // HIDES STOP INPUT BOXES
+							$('#AE9_STOP_OFF41').prop('hidden', true);
+							break;						
+
+
+						case 2: // if they took GO (type 2)
+							var options_EMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_GO.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Embarked",
+								list: {match: {enabled: true}}
+							};
+
+							var options_DISEMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_GO.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Disembarked",
+								list: {match: {enabled: true}}
+							};
+
+							$('#AE9_STOP_ON41').prop('hidden', false); // makes the stop input boxes visible
+							$('#AE9_STOP_OFF41').prop('hidden', false);
+
+							$('#AE9_STOP_ON41').easyAutocomplete(options_EMBARK);	
+							$('#AE9_STOP_OFF41').easyAutocomplete(options_DISEMBARK);	
+							break;
+
+
+						case 3: // if they took ttc (type 3)
+							var options_EMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_RT.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Embarked",
+								list: {match: {enabled: true}}
+							};
+
+							var options_DISEMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_RT.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Disembarked",
+								list: {match: {enabled: true}}
+							};
+
+							$('#AE9_STOP_ON41').prop('hidden', false); // makes the stop input boxes visible
+							$('#AE9_STOP_OFF41').prop('hidden', false);
+
+							$('#AE9_STOP_ON41').easyAutocomplete(options_EMBARK);	
+							$('#AE9_STOP_OFF41').easyAutocomplete(options_DISEMBARK);	
+							break;
+					}; // end of switch 				
+				} // end of onChooseEvent function
+			}
+
+		};
+
+   $('#AE9_BUS41').easyAutocomplete(options);
+
+	</script>
+
+
+
+<!------------------------------ ROUTE 5 -->
+
+    <script>
+		var options = {
+			url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_route_NEW.json",
+			getValue: "name",
+			placeholder: function() {
+				if (language == "FR") {return "5iéme circuit"}
+				else {return "Fifth Route"}
+			},	
+
+			template: {
+				type: "description",
+				fields: {description: "address"}
+				},
+
+			list: {
+				match: {enabled: true},
+				maxNumberOfElements: 6,
+
+				// pretty much from here down to the end of this script is new
+				onChooseEvent: function() {
+					// drops the route code into the cw form
+					route_code = $("#AE9_BUS51").getSelectedItemData().route_code;
+					$("#AE9_RTE_CODE51").val(route_code).trigger("change");
+					
+					// drops the route type from the json file into callweb form
+					route_type = Number($("#AE9_BUS51").getSelectedItemData().route_type);
+					$("#AE9_FLAG51").val(route_type).trigger("change");
+
+					// only runs EAC scripts for stops if routes of type 2 or 3 are chosen.
+					switch (route_type) {
+
+						case 1: // if they took 'other' (no stops asked)
+							$('#AE9_STOP_ON51').prop('hidden', true); // HIDES STOP INPUT BOXES
+							$('#AE9_STOP_OFF51').prop('hidden', true);
+							break;						
+
+
+						case 2: // if they took GO (type 2)
+							var options_EMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_GO.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Embarked",
+								list: {match: {enabled: true}}
+							};
+
+							var options_DISEMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_GO.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Disembarked",
+								list: {match: {enabled: true}}
+							};
+
+							$('#AE9_STOP_ON51').prop('hidden', false); // makes the stop input boxes visible
+							$('#AE9_STOP_OFF51').prop('hidden', false);
+
+							$('#AE9_STOP_ON51').easyAutocomplete(options_EMBARK);	
+							$('#AE9_STOP_OFF51').easyAutocomplete(options_DISEMBARK);
+							break;
+
+
+						case 3: // if they took ttc (type 3)
+							var options_EMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_RT.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Embarked",
+								list: {match: {enabled: true}}
+							};
+
+							var options_DISEMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_RT.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Disembarked",
+								list: {match: {enabled: true}}
+							};
+
+							$('#AE9_STOP_ON51').prop('hidden', false); // makes the stop input boxes visible
+							$('#AE9_STOP_OFF51').prop('hidden', false);
+
+							$('#AE9_STOP_ON51').easyAutocomplete(options_EMBARK);	
+							$('#AE9_STOP_OFF51').easyAutocomplete(options_DISEMBARK);
+							break;
+					}; // end of switch 			
+				} // end of onChooseEvent function
+			}
+		};
+
+   $('#AE9_BUS51').easyAutocomplete(options);
+
+	</script>
+
+
+
+
+<!------------------------------ ROUTE 6 -->
+
+    <script>
+		var options = {
+			url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_route_NEW.json",
+			getValue: "name",
+			placeholder: function() {
+				if (language == "FR") {return "6iéme circuit"}
+				else {return "Sixth Route"}
+			},	
+
+			template: {
+				type: "description",
+					fields: {description: "address"}
+			},
+				
+			list: {
+				match: {enabled: true},
+				maxNumberOfElements: 6,
+
+				// pretty much from here down to the end of this script is new
+				onChooseEvent: function() {
+					// drops the route code into the cw form
+					route_code = $("#AE9_BUS61").getSelectedItemData().route_code;
+					$("#AE9_RTE_CODE61").val(route_code).trigger("change");
+					
+					// drops the route type from the json file into callweb form
+					route_type = Number($("#AE9_BUS61").getSelectedItemData().route_type);
+					$("#AE9_FLAG61").val(route_type).trigger("change");
+
+					// only runs EAC scripts for stops if routes of type 2 or 3 are chosen.
+					switch (route_type) {
+
+						case 1: // if they took 'other' (no stops asked)
+							$('#AE9_STOP_ON61').prop('hidden', true); // HIDES STOP INPUT BOXES
+							$('#AE9_STOP_OFF61').prop('hidden', true);
+							break;						
+
+
+						case 2: // if they took GO (type 2)
+							var options_EMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_GO.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Embarked",
+								list: {match: {enabled: true}}
+							};
+
+							var options_DISEMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_GO.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Disembarked",
+								list: {match: {enabled: true}}
+							};
+
+							$('#AE9_STOP_ON61').prop('hidden', false); // makes the stop input boxes visible
+							$('#AE9_STOP_OFF61').prop('hidden', false);
+
+							$('#AE9_STOP_ON61').easyAutocomplete(options_EMBARK);	
+							$('#AE9_STOP_OFF61').easyAutocomplete(options_DISEMBARK);		
+							break;
+
+
+						case 3: // if they took ttc (type 3)
+							var options_EMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_RT.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Embarked",
+								list: {match: {enabled: true}}
+							};
+
+							var options_DISEMBARK = {
+								url: "cwm20160621_TTS/STOPS_TEST/jsnew/TOtransit_stops_RT.json",
+								listLocation: "stops",
+								getValue: "name",			
+								placeholder: "Station Disembarked",
+								list: {match: {enabled: true}}
+							};
+
+							$('#AE9_STOP_ON61').prop('hidden', false); // makes the stop input boxes visible
+							$('#AE9_STOP_OFF61').prop('hidden', false);
+
+							$('#AE9_STOP_ON61').easyAutocomplete(options_EMBARK);	
+							$('#AE9_STOP_OFF61').easyAutocomplete(options_DISEMBARK);		
+							break;
+					}; // end of switch 				
+				} // end of onChooseEvent function
+			}
+		};
+	
+   $('#AE9_BUS61').easyAutocomplete(options);
+
+	</script>
+        </form>
+	</body>
+
+
+</html>
+
