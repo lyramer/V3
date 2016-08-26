@@ -42,31 +42,33 @@ var EasyAutocomplete = (function(scope){
 					method: function(a, b) {
 						a = defaults.getValue(a);
 						b = defaults.getValue(b);
-						//edit rm
-							if (a === b){
-							return 1;
-						}
-			
+						if (a < b) {return -1;}
+						if (a > b) {return 1;}
 						return 0;
 					}
-				},
+				
+			},
 
-				maxNumberOfElements: 6,
+				maxNumberOfElements: 30,
 
 				hideOnEmptyPhrase: true,
+
 
 				match: {
 					enabled: false,
 					caseSensitive: false,
+					matchtype: 0,
 					method: function(element, phrase) {
 						//edit RM
-						if (element.search(phrase) === 1) {
-							
-							return true;
-						} else {
-							
-							return false;
-						}
+						//if (element.search(phrase) === 1) {return true;} 
+						// 
+						// was changed because the above didn't work if the json file was an array
+						// 
+						// if the phrase is located at the beginning of element,
+						// so the indexOf where the phrase is located returns 0,
+						// include it as a match.
+						if(element.indexOf(phrase) === 0) {return true;} 
+						else {return false;}
 					}
 				},
 
@@ -117,7 +119,7 @@ var EasyAutocomplete = (function(scope){
 			categoriesAssigned: false,
 
 			categories: [{
-				maxNumberOfElements: 4
+				maxNumberOfElements: 6
 			}]
 
 		};
@@ -195,12 +197,8 @@ var EasyAutocomplete = (function(scope){
 				options.list.sort.method = function(a, b) {
 					a = options.getValue(a);
 					b = options.getValue(b);
-					if (a < b) {
-						return -1;
-					}
-					if (a > b) {
-						return 1;
-					}
+					if (a < b) {return -1;}
+					if (a > b) {return 1;}
 					return 0;
 				};
 
@@ -287,8 +285,9 @@ var EasyAutocomplete = (function(scope){
 			}
 
 			if (typeof defaults.listLocation === "string") {
+				
 				var defaultlistLocation = defaults.listLocation;
-
+				
 				if (defaults.dataType.toUpperCase() === "XML") {
 					defaults.listLocation = function(data) {
 						return $(data).find(defaultlistLocation);
@@ -608,6 +607,7 @@ var EasyAutocomplete = (function(scope) {
 	scope.proccess = function proccessData(config, listBuilder, phrase) {
 
 		scope.proccess.match = match;
+	
 
 		var list = listBuilder.data,
 			inputPhrase = phrase;//TODO REFACTOR
